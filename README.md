@@ -1,2 +1,2 @@
 # notes
-Take notes in coding.
+The notes in coding. learn and live.

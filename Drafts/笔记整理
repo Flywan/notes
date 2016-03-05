@@ -1,0 +1,12 @@
+DateFormat
+
+
+Celllayout 
+构造函数
+mTouchFeedbackView为按下时图标表面一层透明灰色动画效果。
+addView(mTouchFeedbackView, (int) (grid.cellWidthPx * 1.5), (int) (grid.cellHeightPx * 1.5));
+addView(mShortcutsAndWidgets);
+
+CellLayout.addView(ShortcutAndWidgetContainer view)
+
+ReorderPreviewAnimation.
