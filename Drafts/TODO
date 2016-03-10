@@ -19,9 +19,29 @@ CellLayout.addViewToCellLayout方法赋值，这个方法在Workspace.addInScree
 CellLayout.performReorder()
 CellLayout.findReorderSolution()
 CellLayout.rearrangementExists()
+
 CellLayout.attemptPushInDirection()
+xy方向上均有作用力，先pushViewsToTempLocation()移动x轴，再移动y轴，若正方向上移动失败，换方向，若只有一个方向有作用力，以以下顺序推动，正方向，反方向，xy轴互换，xy轴互换反方向。
+CellLayout.addViewsToTempLocation Views
+推力没有成功，试着将Views整体移动到空位
+CellLayout.addViewsToTempLocation View
+整体移动失败，试着单独移动
 
 CellLayout.pushViewsToTempLocation()
-CellLayout.addViewsToTempLocation
+
 拖动图标到新的位置时所引起的图标重排，受影响的图标会有一个shake的动画效果
+
+Workspace.onDrop()
+dragSource != this
+onDropExternal()
+
+findNearestArea()此时没有考虑位置是否被占
+createUserFolderIfNecessary()
+addToExistingFolderIfNecessary()
+
+performReorder()
+
+getDirectionVectorForDrop()用一个int数组direction来计算dragView推动别的View的力
+getViewsIntersectingRegion()求出现在dragView影响的区域的Views，drop区域的Rect
+
 
