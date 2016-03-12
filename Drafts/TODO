@@ -24,10 +24,11 @@ CellLayout.attemptPushInDirection()
 xy方向上均有作用力，先pushViewsToTempLocation()移动x轴，再移动y轴，若正方向上移动失败，换方向，若只有一个方向有作用力，以以下顺序推动，正方向，反方向，xy轴互换，xy轴互换反方向。
 CellLayout.addViewsToTempLocation Views
 推力没有成功，试着将Views整体移动到空位
-CellLayout.addViewsToTempLocation View
+CellLayout.addViewToTempLocation View
 整体移动失败，试着单独移动
 
-CellLayout.pushViewsToTempLocation()
+CellLayout.pushViewToTempLocation()
+ViewCluster,记录了上下左右边上当前影响的Views的边界位置，用来表示Rect区域和别的Cell的关系。
 
 拖动图标到新的位置时所引起的图标重排，受影响的图标会有一个shake的动画效果
 

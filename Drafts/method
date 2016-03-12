@@ -143,3 +143,62 @@
         recycleTempRects(validRegions);
         return bestXY;
     }
+
+private int[] findNearestArea(int cellX, int cellY, int spanX, int spanY, int[] direction,
+            boolean[][] occupied, boolean blockOccupied[][], int[] result) {
+        // Keep track of best-scoring drop area
+        final int[] bestXY = result != null ? result : new int[2];
+        float bestDistance = Float.MAX_VALUE;
+        //这里是求direction和result的点积
+        int bestDirectionScore = Integer.MIN_VALUE;
+
+        final int countX = mCountX;
+        final int countY = mCountY;
+
+        //遍历
+        for (int y = 0; y < countY - (spanY - 1); y++) {
+            inner:
+            for (int x = 0; x < countX - (spanX - 1); x++) {
+                // First, let's see if this thing fits anywhere
+                // 当前的位置是否可以安置整个Views
+                for (int i = 0; i < spanX; i++) {
+                    for (int j = 0; j < spanY; j++) {
+                        // 当前位置被占据的cell和blockOccupied的位置一样，不符合
+                        if (occupied[x + i][y + j] && (blockOccupied == null || blockOccupied[i][j])) {
+                            continue inner;
+                        }
+                    }
+                }
+                //直线距离
+                float distance = (float)
+                        Math.sqrt((x - cellX) * (x - cellX) + (y - cellY) * (y - cellY));
+                int[] curDirection = mTmpPoint;
+                //求得当前位置的方向向量int数组
+                computeDirectionVector(x - cellX, y - cellY, curDirection);
+                // The direction score is just the dot product of the two candidate direction
+                // and that passed in.
+                // 点积
+                int curDirectionScore = direction[0] * curDirection[0] +
+                        direction[1] * curDirection[1];
+                boolean exactDirectionOnly = false;
+                boolean directionMatches = direction[0] == curDirection[0] &&
+                        direction[0] == curDirection[0];
+                //方向匹配()的情况下，取距离短的，距离相同取点积大的
+                if ((directionMatches || !exactDirectionOnly) &&
+                        Float.compare(distance,  bestDistance) < 0 || (Float.compare(distance,
+                        bestDistance) == 0 && curDirectionScore > bestDirectionScore)) {
+                    bestDistance = distance;
+                    bestDirectionScore = curDirectionScore;
+                    bestXY[0] = x;
+                    bestXY[1] = y;
+                }
+            }
+        }
+
+        // Return -1, -1 if no suitable location found
+        if (bestDistance == Float.MAX_VALUE) {
+            bestXY[0] = -1;
+            bestXY[1] = -1;
+        }
+        return bestXY;
+    }
