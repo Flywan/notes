@@ -50,6 +50,8 @@
                 int ySize = -1;
                 int xSize = -1;
                 //为true时代表要考虑已经被占据的位置
+                //先寻找符合minSpanX和minSpanY的位置
+                //然后向分x，y方向向外扩大，试探当前位置最大的可能性
                 if (ignoreOccupied) {
                     // First, let's see if this thing fits anywhere
                     for (int i = 0; i < minSpanX; i++) {
@@ -66,6 +68,7 @@
                     // how big we can make it. We'll alternate between incrementing x and y spans
                     // until we hit a limit.
                     boolean incX = true;
+                    //为true停止
                     boolean hitMaxX = xSize >= spanX;
                     boolean hitMaxY = ySize >= spanY;
                     while (!(hitMaxX && hitMaxY)) {
@@ -90,6 +93,7 @@
                                 ySize++;
                             }
                         }
+                        //为true或大于等于span
                         hitMaxX |= xSize >= spanX;
                         hitMaxY |= ySize >= spanY;
                         incX = !incX;

@@ -32,7 +32,9 @@ ViewCluster,记录了上下左右边上当前影响的Views的边界位置，用
 
 拖动图标到新的位置时所引起的图标重排，受影响的图标会有一个shake的动画效果
 
-Workspace.onDrop()
+Workspace.onDrop()流程
+方法参数为DropTarget.DragObject对象，首先计算拖动View的视觉中心mDragViewVisualCenter，dropTargetLayout为Drop的Celllayout对象，下一步判断当前是否在Hotseat上，求出相对于dropTargetLayout的视觉中心坐标。如果DragObject.dragSource！=Worspace，转而调用onDropExternal()，否则继续调用onDrop()的内容。接着调用findNearestArea方法球drop的xy的值，Workspace.findNearestArea()调用到CellLayout.findNearestArea()
+
 dragSource != this
 onDropExternal()
 
