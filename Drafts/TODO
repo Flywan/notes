@@ -7,38 +7,42 @@ mTouchFeedbackView为按下时图标表面一层透明灰色动画效果。
 addView(mTouchFeedbackView, (int) (grid.cellWidthPx * 1.5), (int) (grid.cellHeightPx * 1.5));
 addView(mShortcutsAndWidgets);
 
-CellLayout.addView(ShortcutAndWidgetContainer view)
+CellLayout-addView(ShortcutAndWidgetContainer view)
 
 拖动时shake动画
-ReorderPreviewAnimation.animate()
+ReorderPreviewAnimation-animate()
 
-CellLayout.LayoutParams 
+CellLayout-LayoutParams 
 boolean[][] mOccupied 桌面图标布局中是否有图标占位，存在为true
-CellLayout.addViewToCellLayout方法赋值，这个方法在Workspace.addInScreen方法中调用，而桌面初始化时的bind过程会一直调用到这个方法。
+CellLayout-addViewToCellLayout方法赋值，这个方法在Workspace-addInScreen方法中调用，而桌面初始化时的bind过程会一直调用到这个方法。
 
-CellLayout.performReorder()
-CellLayout.findReorderSolution()
-CellLayout.rearrangementExists()
+CellLayout-performReorder()
+CellLayout-findReorderSolution()
+CellLayout-rearrangementExists()
 
-CellLayout.attemptPushInDirection()
+CellLayout-attemptPushInDirection()
 xy方向上均有作用力，先pushViewsToTempLocation()移动x轴，再移动y轴，若正方向上移动失败，换方向，若只有一个方向有作用力，以以下顺序推动，正方向，反方向，xy轴互换，xy轴互换反方向。
-CellLayout.addViewsToTempLocation Views
+CellLayout-addViewsToTempLocation Views
 推力没有成功，试着将Views整体移动到空位
-CellLayout.addViewToTempLocation View
+CellLayout-addViewToTempLocation View
 整体移动失败，试着单独移动
 
-CellLayout.pushViewToTempLocation()
+CellLayout-pushViewToTempLocation()
 ViewCluster,记录了上下左右边上当前影响的Views的边界位置，用来表示Rect区域和别的Cell的关系。
 
 拖动图标到新的位置时所引起的图标重排，受影响的图标会有一个shake的动画效果
 
 拖动图标的事件处理
-在DragLayer.onInterceptTouchEvent方法将时间传递给DragController.onInterceptTouchEvent方法处理。
+DragController和DragLayer
+DragLayer是Launcher3中处理拖动图标事件时自定义View，DragController的注释为：发起一个在一个View内或在几个View之间拖动事件的类。从名字可以看出这个类是一个调节者或控制者。
+在DragLayer-onInterceptTouchEvent方法将事件给DragController-onInterceptTouchEvent方法处理。拖动拖标的事件开始处理时，会一直调用到DragController-startDrag方法，此时，startDrag里将mDragging置为true,而DragController-onInterceptTouchEvent返回mDragging,此时截断事件传递，当前View处理触摸事件。类似的，DragLayer的onTouchEent方法也将事件给DragController的onTouchEent方法处理。
 
-Workspace.onDrop()流程
-方法参数为DropTarget.DragObject对象，首先计算拖动View的视觉中心mDragViewVisualCenter，dropTargetLayout为Drop的Celllayout对象，下一步判断当前是否在Hotseat上，求出相对于dropTargetLayout的视觉中心坐标。如果DragObject.dragSource！=Worspace，转而调用onDropExternal()，否则继续调用onDrop()的内容。接着调用findNearestArea方法球drop的xy的值，Workspace.findNearestArea()调用到CellLayout.findNearestArea(),该方法是一个重要的方法，作用是找到离落点最近距离cell，其中有一个boolean参数ignoreOccupied，当ignoreOccupied为false时，寻找cell时不考虑已经占据的区域，为true时考虑。
-接下来开始处理落点和文件夹的关系,如果落点处可以合成一个Folder，调用Workspace.createUserFolderIfNecessary()方法，如果拖动的图标可以加进一个文件夹，则调用Workspace.addToExistingFolderIfNecessary()方法。
-如果不满足文件夹的条件，则调用CellLayout.performReorder方法，这个方法就是处理拖动图标时，如果当前落点被占据时，挤开当前图标的效果。AppWidget可能在拖动时发生缩小，因此会调用AppWidgetResizeFrame.updateWidgetSizeRanges方法，拖动时可能落点在别的页面，所以还会有页面滑动的效果。如果满足则更新位置，保存新的位置信息到数据库中，播放动画效果，否则弹回原来位置。
+
+
+Workspace-onDrop()流程
+方法参数为DropTarget-DragObject对象，首先计算拖动View的视觉中心mDragViewVisualCenter，dropTargetLayout为Drop的Celllayout对象，下一步判断当前是否在Hotseat上，求出相对于dropTargetLayout的视觉中心坐标。如果DragObject-dragSource！=Worspace，转而调用onDropExternal()，否则继续处理onDrop()的内容。接着调用findNearestArea方法球drop的xy的值，Workspace-findNearestArea()调用到CellLayout-findNearestArea(),该方法是一个重要的方法，作用是找到离落点最近距离cell，其中有一个boolean参数ignoreOccupied，当ignoreOccupied为false时，寻找cell时不考虑已经占据的区域，为true时考虑。
+接下来开始处理落点和文件夹的关系,如果落点处可以合成一个Folder，调用Workspace-createUserFolderIfNecessary()方法，如果拖动的图标可以加进一个文件夹，则调用Workspace-addToExistingFolderIfNecessary()方法。
+如果不满足文件夹的条件，则调用CellLayout-performReorder方法，这个方法就是处理拖动图标时，如果当前落点被占据时，挤开当前图标的效果。AppWidget可能在拖动时发生缩小，因此会调用AppWidgetResizeFrame-updateWidgetSizeRanges方法，拖动时可能落点在别的页面，所以还会有页面滑动的效果。如果满足则更新位置，保存新的位置信息到数据库中，播放动画效果，否则弹回原来位置。
 
 dragSource != this
 onDropExternal()
