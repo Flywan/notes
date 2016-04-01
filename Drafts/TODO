@@ -41,7 +41,7 @@ handleMoveEvent方法为处理触摸事件的主要方法，在handleMoveEvent�
 
 接下来对主要分析DropTarget为Workspace的拖动。
 
-根据checkTouchMove方法，在Workspace中开始拖动图标时，图标
+根据checkTouchMove方法，在Workspace中开始拖动图标时，图标开始时在Workspace中，此时DropTarget也为Workspace，所以开始调用Workspace的onDragOver方法。
 
 
 
