@@ -59,7 +59,148 @@ Workspace的onDragStart方法处理了一些界面相关的操作，比如锁定
 
 Workspace还实现了一个拖动相关的接口为DragSource接口，这个接口定义了拖动可以从它本身开始的对象，就是可以从Workspace开始拖动一个图标，DragSorce声明了一系列拖动时判断条件或某种状态回调的方法。
 
-方法：
+具体方法：
+    /**
+     * Find a vacant area that will fit the given bounds nearest the requested
+     * cell location. Uses Euclidean distance to score multiple vacant areas.
+     */
+    int[] findNearestArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY,
+            View ignoreView, boolean ignoreOccupied, int[] result, int[] resultSpan,
+            boolean[][] occupied) {
+        //初始化一个mCountX*mCountY的栈
+        lazyInitTempRectStack();
+        // mark space take by ignoreView as available (method checks if ignoreView is null)
+        //此时occupied为mOccupied,这里将ignoreView的位置置为false,即忽略当前位置View
+        markCellsAsUnoccupiedForView(ignoreView, occupied);
+
+        // For items with a spanX / spanY > 1, the passed in point (pixelX, pixelY) corresponds
+        // to the center of the item, but we are searching based on the top-left cell, so
+        // we translate the point over to correspond to the top-left.
+        // 即左上角cell的中心pixelX -= (mCellWidth*span + mWidthGap*(spanX-1))/2-mCellWidth/2
+        pixelX -= (mCellWidth + mWidthGap) * (spanX - 1) / 2f;
+        pixelY -= (mCellHeight + mHeightGap) * (spanY - 1) / 2f;
+
+        // Keep track of best-scoring drop area
+        final int[] bestXY = result != null ? result : new int[2];
+        double bestDistance = Double.MAX_VALUE;
+        final Rect bestRect = new Rect(-1, -1, -1, -1);
+        final Stack<Rect> validRegions = new Stack<Rect>();
+
+        final int countX = mCountX;
+        final int countY = mCountY;
+
+        if (minSpanX <= 0 || minSpanY <= 0 || spanX <= 0 || spanY <= 0 ||
+                spanX < minSpanX || spanY < minSpanY) {
+            return bestXY;
+        }
+
+        for (int y = 0; y < countY - (minSpanY - 1); y++) {
+            inner:
+            for (int x = 0; x < countX - (minSpanX - 1); x++) {
+                int ySize = -1;
+                int xSize = -1;
+                //为true时代表要考虑已经被占据的位置
+                //先寻找符合minSpanX和minSpanY的位置
+                //然后向分x，y方向向外扩大，试探当前位置最大的可能性
+				//findConfigurationNoShuffle方法调用时为true
+                if (ignoreOccupied) {
+                    // First, let's see if this thing fits anywhere
+                    for (int i = 0; i < minSpanX; i++) {
+                        for (int j = 0; j < minSpanY; j++) {
+                            if (occupied[x + i][y + j]) {
+                                continue inner;
+                            }
+                        }
+                    }
+                    xSize = minSpanX;
+                    ySize = minSpanY;
+
+                    // We know that the item will fit at _some_ acceptable size, now let's see
+                    // how big we can make it. We'll alternate between incrementing x and y spans
+                    // until we hit a limit.
+                    boolean incX = true;
+                    //为true停止
+                    boolean hitMaxX = xSize >= spanX;
+                    boolean hitMaxY = ySize >= spanY;
+                    while (!(hitMaxX && hitMaxY)) {
+                        if (incX && !hitMaxX) {
+                            for (int j = 0; j < ySize; j++) {
+                                if (x + xSize > countX -1 || occupied[x + xSize][y + j]) {
+                                    // We can't move out horizontally
+                                    hitMaxX = true;
+                                }
+                            }
+                            if (!hitMaxX) {
+                                xSize++;
+                            }
+                        } else if (!hitMaxY) {
+                            for (int i = 0; i < xSize; i++) {
+                                if (y + ySize > countY - 1 || occupied[x + i][y + ySize]) {
+                                    // We can't move out vertically
+                                    hitMaxY = true;
+                                }
+                            }
+                            if (!hitMaxY) {
+                                ySize++;
+                            }
+                        }
+                        //为true或大于等于span
+                        hitMaxX |= xSize >= spanX;
+                        hitMaxY |= ySize >= spanY;
+                        incX = !incX;
+                    }
+                    incX = true;
+                    hitMaxX = xSize >= spanX;
+                    hitMaxY = ySize >= spanY;
+                }
+                //求(x, y)的点的坐标
+                final int[] cellXY = mTmpXY;
+                cellToCenterPoint(x, y, cellXY);
+
+                // We verify that the current rect is not a sub-rect of any of our previous
+                // candidates. In this case, the current rect is disqualified in favour of the
+                // containing rect.
+                Rect currentRect = mTempRectStack.pop();
+                currentRect.set(x, y, x + xSize, y + ySize);
+                boolean contained = false;
+                for (Rect r : validRegions) {
+                    if (r.contains(currentRect)) {
+                        contained = true;
+                        break;
+                    }
+                }
+                validRegions.push(currentRect);
+                double distance = Math.sqrt(Math.pow(cellXY[0] - pixelX, 2)
+                        + Math.pow(cellXY[1] - pixelY, 2));
+
+                if ((distance <= bestDistance && !contained) ||
+                        currentRect.contains(bestRect)) {
+                    bestDistance = distance;
+                    bestXY[0] = x;
+                    bestXY[1] = y;
+                    if (resultSpan != null) {
+                        resultSpan[0] = xSize;
+                        resultSpan[1] = ySize;
+                    }
+                    bestRect.set(currentRect);
+                }
+            }
+        }
+        // re-mark space taken by ignoreView as occupied
+        // 恢复occupied的值
+        markCellsAsOccupiedForView(ignoreView, occupied);
+
+        // Return -1, -1 if no suitable location found
+        if (bestDistance == Double.MAX_VALUE) {
+            bestXY[0] = -1;
+            bestXY[1] = -1;
+        }
+        recycleTempRects(validRegions);
+        return bestXY;
+    }
+在后面拖动时具体执行桌面重排时会调用到findNearestArea方法的重载方法，还会权衡建议的方向向量。
+performReorder方法：
+
 
 dragSource != this
 onDropExternal()
@@ -72,5 +213,10 @@ performReorder()
 
 getDirectionVectorForDrop()用一个int数组direction来计算dragView推动别的View的力
 getViewsIntersectingRegion()求出现在dragView影响的区域的Views，drop区域的Rect
+
+数学基础
+数量积 isFlingingToDelete方法，findNearestArea方法
+维基https://zh.wikipedia.org/wiki/%E6%95%B0%E9%87%8F%E7%A7%AF
+三角函数 computeDirectionVector方法
 
 
