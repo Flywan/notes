@@ -2,6 +2,9 @@ Email源码
 入口Activity：com.android.email2.ui.MailActivityEmail
 AuthenticatorSetupIntentHelper的actionNewAccountWithResultIntent方法，构建建立账户的流程Intent
 
+MailActivity onCreate ControllerFactory.forActivity方法
+
+
 EmailAccountCacheProvider.getNoAccountsIntent方法
 
 AbstractActivityController AccountLoads的onLoadFinished方法
@@ -15,3 +18,5 @@ if (accountsLoaded) {
 }
 
 OnePaneController继承AbstractActivityController
+
+AccountSetupFinal账户设置的Activity
