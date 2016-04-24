@@ -1,16 +1,16 @@
 DateFormat
 
+拖动时受影响的图标在文中由item或cell来表示。
 
 Celllayout 
 构造函数
-mTouchFeedbackView为按下时图标表面一层透明灰色动画效果。
+mTouchFeedbackView为按下时图标表面一层透明灰色动画效果，这个动画效果在Celllayout中，在构造函数中addView加入，BubbleTextView 中 setStayPressed方法调用这个动画效果，在点击图标时呈现。
 addView(mTouchFeedbackView, (int) (grid.cellWidthPx * 1.5), (int) (grid.cellHeightPx * 1.5));
 addView(mShortcutsAndWidgets);
 
 CellLayout-addView(ShortcutAndWidgetContainer view)
 
-拖动时shake动画
-ReorderPreviewAnimation-animate()
+拖动时受影响的Item有一个摇动的(shake)动画，这个动画效果是通过ReorderPreviewAnimation和mShakeAnimators实现，受影响的item由ItemConfiguration管理，Celllayout-completeAndClearReorderPreviewAnimations方法播放动画，在适当时机调用。这个动画比较有意思，单纯的线性动画没有这种效果，看了代码才发现用到了贝塞儿曲线，这部分代码主要在Celllayout中。
 
 CellLayout-LayoutParams 
 boolean[][] mOccupied 桌面图标布局中是否有图标占位，存在为true
