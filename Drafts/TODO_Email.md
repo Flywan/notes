@@ -41,3 +41,7 @@ AccountCheckSettingsFragment:
 SecurityRequiredDialogFragment: Exchange账户安全策略控制对话框
 CheckSettingsErrorDialogFragment: 设置账户时发生错误对话框，比如无法连接至服务器等
 CheckSettingsProgressDialogFragment：Simple dialog that shows progress as we work through the settings checks.
+AccountSetupTypeFragment: 选择账户的类型(POP3, IMAP 和 EXCHANGE)
+AccountSetupNamesFragment：设置账户发件的姓名和账户名称
+AccountSetupOptionsFragment: 账户选项设置
+AccountSetupBasicsFragment:填入邮箱账户的界面
