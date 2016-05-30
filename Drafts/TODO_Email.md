@@ -45,3 +45,9 @@ AccountSetupTypeFragment: 选择账户的类型(POP3, IMAP 和 EXCHANGE)
 AccountSetupNamesFragment：设置账户发件的姓名和账户名称
 AccountSetupOptionsFragment: 账户选项设置
 AccountSetupBasicsFragment:填入邮箱账户的界面
+AccountServerBaseFragment: 帐号服务器设置的base class。AccountSetupIncomingFragment和AccountSetupOutgoingFragment继承了它。
+AccountSetupCredentialsFragment：账户凭证设置界面
+DuplicateAccountDialogFragment：提示用户名已被使用的对话框
+AccountSetupABFragment: 确认账户的类型，当用户的protocol选择和providers.xml里指示的不一样之时。
+AccountSetupFragment: 账户设置流程的父类，保存着一个代表当前的状态mState，方便后退操作
+
