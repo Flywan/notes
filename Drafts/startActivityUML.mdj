@@ -12575,6 +12575,52 @@
 											"autoResize": false,
 											"text": "resumeTopActivityInnerLocked中mResumedActivity不为空，\n执行startPausingLocked将prev执行pause操作\nstartPausingLocked中将mResumedActivity置为null，\n30步再次执行时跳过pause",
 											"wordWrap": true
+										},
+										{
+											"_type": "UMLTextView",
+											"_id": "AAAAAAFVHGIdxFB2XyA=",
+											"_parent": {
+												"$ref": "AAAAAAFVEOtI8ejkKGY="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 640,
+											"top": 1016,
+											"width": 512.7724609375,
+											"height": 121,
+											"autoResize": false,
+											"text": "31步：realStartActivityLocked\nIs this activity's application already running?\n32步即是新启动一个app时的步骤，\n启动app中其他Activity时不需要启动一个新的app，\n此时直接调用realStartActivityLocked",
+											"wordWrap": true
+										},
+										{
+											"_type": "UMLTextView",
+											"_id": "AAAAAAFVHKMgNFCBRn0=",
+											"_parent": {
+												"$ref": "AAAAAAFVEOtI8ejkKGY="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 640,
+											"top": 456,
+											"width": 330.72802734375,
+											"height": 96,
+											"autoResize": false,
+											"text": "10步：startActivityUncheckedLocked\n这里根据启动的配置决定launchmode，\n判定activityTask。\nIf consider new task，new one or reuse",
+											"wordWrap": true
 										}
 									],
 									"showSequenceNumber": true,
