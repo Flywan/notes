@@ -1,0 +1,20 @@
+Index: frameworks/base/services/core/java/com/android/server/am/ActiveServices.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/am/ActiveServices.java	(revision 8117)
++++ frameworks/base/services/core/java/com/android/server/am/ActiveServices.java	(working copy)
+@@ -2712,6 +2712,15 @@
+             }
+             /* qiku end */
+ 
++            //final void killServicesLocked(ProcessRecord app, boolean allowRestart)
++            if (app.info.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
++                 Slog.w(TAG, "Service crashed " + sr.crashCount
++                         + " times, stopping: " + sr + "this is not system app or core app" + app.processName);
++                 EventLog.writeEvent(EventLogTags.AM_DESTROY_SERVICE ,
++                         sr.crashCount, sr.shortName, app.pid,  app.processName);
++                 bringDownServiceLocked(sr);
++            }
++
+             // Any services running in the application may need to be placed
+             // back in the pending list.
+             if (allowRestart && sr.crashCount >= 2 && (sr.serviceInfo.applicationInfo.flags

@@ -1,0 +1,77 @@
+Index: frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 28262)
++++ frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 28263)
+@@ -306,6 +306,10 @@
+     private static final String NO_BINDER_DEBUG_INFO = "\n(no binder info)\n";
+     /*YUNOS END*/
+ 
++    //start config the factor for anr time by huangxunwan
++    public static final int ANR_TIMEOUT_FACTOR = SystemProperties.getInt("persist.anr.timeout_factor", 1);
++    //end by huangxunwan
++
+     private static final boolean HAVE_AEE_FEATURE = SystemProperties.get("ro.have_aee_feature").equals("1");
+     private static final boolean MTK_BENCHMARK_BOOST_TP = SystemProperties.get("ro.mtk_benchmark_boost_tp").equals("1");
+     private static final boolean MTK_GMO_RAM_OPTIMIZE = SystemProperties.get("ro.mtk_gmo_ram_optimize").equals("1");
+@@ -413,13 +417,17 @@
+     static final int CPU_MIN_CHECK_DURATION = (DEBUG_POWER_QUICK ? 1 : 5) * 60*1000;
+ 
+     // How long we allow a receiver to run before giving up on it.
+-    static final int BROADCAST_FG_TIMEOUT = 10*1000;
+-    static final int BROADCAST_BG_TIMEOUT = 60*1000;
++    //start config the factor for anr time by huangxunwan
++    static final int BROADCAST_FG_TIMEOUT = 10*1000*ANR_TIMEOUT_FACTOR;
++    static final int BROADCAST_BG_TIMEOUT = 60*1000*ANR_TIMEOUT_FACTOR;
++    // end by huangxunwan
+ 
+     // How long we wait until we timeout on key dispatching.
+     /// M: 2012-02-14 @{
+     // Extend KeyDispatchingTimeout for time needed to perform a call stack pre-dump at 5 second.
+-    static final int KEY_DISPATCHING_TIMEOUT = 8 * 1000;
++    //start config the factor for anr time by huangxunwan
++    static final int KEY_DISPATCHING_TIMEOUT = 8 * 1000*ANR_TIMEOUT_FACTOR;
++    //end by huangxunwan
+     /// @}
+ 
+     // How long we wait until we timeout on key dispatching during instrumentation.
+Index: frameworks/base/services/core/java/com/android/server/am/ActiveServices.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/am/ActiveServices.java	(revision 28262)
++++ frameworks/base/services/core/java/com/android/server/am/ActiveServices.java	(revision 28263)
+@@ -88,7 +88,9 @@
+     static final String TAG_MU = ActivityManagerService.TAG_MU;
+ 
+     // How long we wait for a service to finish executing.
+-    static final int SERVICE_TIMEOUT = 20*1000;
++    //start config the factor for anr time by huangxunwan
++    static final int SERVICE_TIMEOUT = 20*1000*ActivityManagerService.ANR_TIMEOUT_FACTOR;
++    //end by huangxunwan
+ 
+     // How long we wait for a service to finish executing.
+     static final int SERVICE_BACKGROUND_TIMEOUT = SERVICE_TIMEOUT * 10;
+Index: frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 28262)
++++ frameworks/base/services/core/java/com/android/server/wm/WindowManagerService.java	(revision 28263)
+@@ -173,6 +173,10 @@
+ import com.mediatek.anrappframeworks.ANRAppFrameworks;
+ import com.mediatek.anrappmanager.ANRAppManager;
+ 
++//start config the factor for anr time by huangxunwan
++import com.android.server.am.ActivityManagerService;
++//end by huangxunwan
++
+ /** {@hide} */
+ public class WindowManagerService extends IWindowManager.Stub
+         implements Watchdog.Monitor, WindowManagerPolicy.WindowManagerFuncs {
+@@ -299,7 +303,9 @@
+ 
+     // Default input dispatching timeout in nanoseconds.
+     /// M:2012-07-06 ALPS00314133 WNR Debugging Mechanism
+-    static final long DEFAULT_INPUT_DISPATCHING_TIMEOUT_NANOS = 8000 * 1000000L;
++    //start config the factor for anr time by huangxunwan
++    static final long DEFAULT_INPUT_DISPATCHING_TIMEOUT_NANOS = 8000 *ActivityManagerService.ANR_TIMEOUT_FACTOR* 1000000L;
++    //end by huangxunwan
+ 
+     // Poll interval in milliseconds for watching boot animation finished.
+     private static final int BOOT_ANIMATION_POLL_INTERVAL = 200;

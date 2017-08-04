@@ -1,0 +1,24 @@
+Index: frameworks/base/core/java/android/app/ContextImpl.java
+===================================================================
+--- frameworks/base/core/java/android/app/ContextImpl.java	(revision 34140)
++++ frameworks/base/core/java/android/app/ContextImpl.java	(working copy)
+@@ -1465,19 +1465,19 @@
+     @Override
+     public void sendBroadcast(Intent intent) {
+         warnIfCallingFromSystemProcess();
++         /*YUNOS BEGIN*/
++         //Filter for SHORTCUT in home
++         //##date:2015-03-23 ##author:xiangyang.ma@aliyun-inc.com
++         if("yes".equals(SystemProperties.get("ro.yunos.support.shortcut","unknown"))) {
++             if(intent != null && "com.android.launcher.action.INSTALL_SHORTCUT".equals(intent.getAction())){
++                 if(Settings.Secure.getInt(getContentResolver(),"shortcut_mode",0) == 0){
++                     ApplicationInfo ai = getApplicationInfo();
++                     if(ai == null ||  (ai.flags & ApplicationInfo.FLAG_SYSTEM) == 0)
++                         return;
++                 }
++             }
++         }
++         /*YUNOS END*/
+         String resolvedType = intent.resolveTypeIfNeeded(getContentResolver());
+         try {
+             intent.prepareToLeaveProcess();

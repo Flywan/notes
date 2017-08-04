@@ -1,0 +1,62 @@
+Index: customize/客户化配置帮助文档.txt
+===================================================================
+--- customize/客户化配置帮助文档.txt	(revision 8975)
++++ customize/客户化配置帮助文档.txt	(revision 8976)
+@@ -244,6 +244,9 @@
+ 
+     27.老人机项目的报号功能,来电号码放大以及设置的二级菜单放大配置old_man_mode=true
+     old_man_mode=true|false true为打开 默认false 关闭
++
++	28.默认桌面配置
++	default_launcher=null
+            
+ 
+ 五、重要功能配置
+Index: frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 8975)
++++ frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 8976)
+@@ -3458,6 +3458,32 @@
+             return false;
+         }
+         Intent intent = getHomeIntent();
++        //added by fuyongtai topwise for default launcher configuration startHomeActivityLocked方法
++        int bestMatch = 0;
++        IntentFilter homeFilter = new IntentFilter(Intent.ACTION_MAIN);
++        homeFilter.addCategory(Intent.CATEGORY_HOME);
++        homeFilter.addCategory(Intent.CATEGORY_DEFAULT);
++        ArrayList<ResolveInfo> homeActivities = new ArrayList<ResolveInfo>();
++        ComponentName currentDefaultHome  = mContext.getPackageManager().getHomeActivities(homeActivities);
++        ComponentName[] homeComponentSet = new ComponentName[homeActivities.size()];
++        if(currentDefaultHome==null&&android.os.TopwiseConfig.DEFAULT_LAUNCHER!=null){
++            for (int i = 0; i < homeActivities.size(); i++) {
++                final ResolveInfo candidate = homeActivities.get(i);
++                final ActivityInfo info = candidate.activityInfo;
++                ComponentName activityName = new ComponentName(info.packageName, info.name);
++                Slog.d(TAG, "startHomeActivityLocked:activityName="+activityName);
++                homeComponentSet[i] = activityName;
++                if (candidate.match > bestMatch) bestMatch = candidate.match;
++                if(info.packageName.equals(android.os.TopwiseConfig.DEFAULT_LAUNCHER)){
++                    currentDefaultHome=activityName;
++                }
++            }
++            if(currentDefaultHome!= null){
++                mContext.getPackageManager().addPreferredActivity(homeFilter,bestMatch,homeComponentSet,currentDefaultHome,userId);
++            }
++        }
++        //added by fuyongtai topwise for default launcher configuration
++
+         ActivityInfo aInfo =
+             resolveActivityInfo(intent, STOCK_PM_FLAGS, userId);
+         if (aInfo != null) {
+Index: frameworks/base/core/java/android/os/TopwiseConfig.java
+===================================================================
+--- frameworks/base/core/java/android/os/TopwiseConfig.java	(revision 8975)
++++ frameworks/base/core/java/android/os/TopwiseConfig.java	(revision 8976)
+@@ -135,4 +135,6 @@
+     public static final boolean SHOW_AVALIABLE_MEMORY = TopwiseProp.getDefaultSettingBoolean("show_avaliable_memory",true);
+     /** @hide add by liuwei for 老人桌面项目,打开来电拨号以及隐藏老人模式选项 2016-1-12 */
+     public static final boolean OLD_MAN_MODE = TopwiseProp.getDefaultSettingBoolean("old_man_mode", false);
++    //added by fuyongtai topwise for default launcher configuration
++    public static final String DEFAULT_LAUNCHER =TopwiseProp.getDefaultSettingString("default_launcher",null);
+ }

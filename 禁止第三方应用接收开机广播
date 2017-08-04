@@ -1,0 +1,22 @@
+Index: frameworks/base/services/core/java/com/android/server/am/BroadcastQueue.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/am/BroadcastQueue.java	(revision 8117)
++++ frameworks/base/services/core/java/com/android/server/am/BroadcastQueue.java	(working copy)
+@@ -1184,6 +1184,17 @@
+                 scheduleBroadcastsLocked();
+                 return;
+             }
++            //final void processNextBroadcast(boolean fromMsg)
++            if((info.activityInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
++                if (Intent.ACTION_BOOT_COMPLETED.equals(r.intent.getAction())) {
++                     Slog.v(TAG, "forbidden third app receive boot complete bradcast");
++                     r.receiver = null;
++                     r.curFilter = null;
++                     r.state = BroadcastRecord.IDLE;
++                     scheduleBroadcastsLocked();
++                     return;
++                }
++            }
+ 
+             r.state = BroadcastRecord.APP_RECEIVE;
+             String targetProcess = info.activityInfo.processName;

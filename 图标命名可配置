@@ -1,0 +1,81 @@
+Index: frameworks/base/core/java/android/content/pm/PackageItemInfo.java
+===================================================================
+--- frameworks/base/core/java/android/content/pm/PackageItemInfo.java	(revision 647)
++++ frameworks/base/core/java/android/content/pm/PackageItemInfo.java	(revision 648)
+@@ -130,6 +130,11 @@
+         if (labelRes != 0) {
+             CharSequence label = pm.getText(packageName, labelRes, getApplicationInfo());
+             if (label != null) {
++                 //add by huangxunwan for delete 360 title, loadLabel方法
++                if (android.os.TopwiseProp.getDefaultSettingBoolean("config_delete_360_title", true)){
++                    label = del360Title(packageName, label);
++                }
++                //end add by huangxunwan for delete 360 title
+                 return label.toString().trim();
+             }
+         }
+@@ -139,6 +144,12 @@
+         return packageName;
+     }
+ 
++     //add by huangxunwan for delete 360 title
++    protected static String del360Title(String packageName, CharSequence label){
++        return ComponentInfo.del360Title(packageName, label);
++    }
++     //end add by huangxunwan for delete 360 title
++
+     /**
+      * Retrieve the current graphical icon associated with this item.  This
+      * will call back on the given PackageManager to load the icon from
+Index: frameworks/base/core/java/android/content/pm/ComponentInfo.java
+===================================================================
+--- frameworks/base/core/java/android/content/pm/ComponentInfo.java	(revision 647)
++++ frameworks/base/core/java/android/content/pm/ComponentInfo.java	(revision 648)
+@@ -84,6 +84,11 @@
+         if (labelRes != 0) {
+             label = pm.getText(packageName, labelRes, ai);
+             if (label != null) {
++                 //add by huangxunwan for delete 360 title loadLabel方法
++                if (android.os.TopwiseProp.getDefaultSettingBoolean("config_delete_360_title", true)){
++                    label = del360Title(packageName, label);
++                }
++                //end add by huangxunwan for delete 360 title
+                 return label;
+             }
+         }
+@@ -93,12 +98,35 @@
+         if (ai.labelRes != 0) {
+             label = pm.getText(packageName, ai.labelRes, ai);
+             if (label != null) {
++                 //add by huangxunwan for delete 360 title
++                if (android.os.TopwiseProp.getDefaultSettingBoolean("config_delete_360_title", true)){
++                    label = del360Title(packageName, label);
++                }
++                //end add by huangxunwan for delete 360 title
+                 return label;
+             }
+         }
+         return name;
+     }
+ 
++    //add by huangxunwan for delete 360 title
++    protected static String del360Title(String packageName, CharSequence label){
++      String fakeString = label.toString().trim();  
++      if ("com.qihoo.appstore".equals(packageName)){
++          return "手机助手";
++      }
++      if ("com.qihoo360.mobilesafe".equals(packageName)){
++          return "安全卫士";
++      }
++      if (fakeString.startsWith("360")){
++          fakeString = fakeString.substring(3);
++          android.util.Log.d("hxw ComponentInfo", "change label to: " + fakeString);
++          return fakeString.toString().trim();
++      }
++      return label.toString();
++    }
++    //add by huangxunwan for delete 360 title
++
+     /**
+      * Return whether this component and its enclosing application are enabled.
+      */

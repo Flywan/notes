@@ -1,0 +1,50 @@
+Index: frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java
+===================================================================
+--- frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java	(revision 8797)
++++ frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindowManager.java	(revision 8798)
+@@ -1426,7 +1426,11 @@
+         //##modules(homeshell)
+         //##date:2014/03/15 ##author:hongxing.whx##BugID:100930
+         //goto yunos homeshell directly when pressing home key
+-        mHomeIntent.setPackage("com.aliyun.homeshell");
++        //public void init(Context context, IWindowManager windowManager, WindowManagerFuncs windowManagerFuncs) 
++        /*Start by chenjinchi topwise 2015-09-09 for disable press home key to homeshell*/
++	if (!android.os.TopwiseProp.getDefaultSettingBoolean("disable_press_home_key_to_homeshell", false)){
++		mHomeIntent.setPackage("com.aliyun.homeshell");
++	}       
++	/*End by chenjinchi topwise 2015-09-09 for disable press home key to homeshell*/
+         /*YUNOS END*/
+         mCarDockIntent =  new Intent(Intent.ACTION_MAIN, null);
+         mCarDockIntent.addCategory(Intent.CATEGORY_CAR_DOCK);
+Index: frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java
+===================================================================
+--- frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 8797)
++++ frameworks/base/services/core/java/com/android/server/am/ActivityManagerService.java	(revision 8798)
+@@ -3437,9 +3437,13 @@
+             //##modules(homeshell): [kelude#5613422]
+             //##date:2015-01-07 ##author:jiangjun.jj
+             //##desc:use ali homeshell at system boot-up
+-            if ( 0 != Settings.Global.getInt( mContext.getContentResolver(), Settings.Global.DEVICE_PROVISIONED, 0) ) {
+-                intent.setPackage("com.aliyun.homeshell");
++            //getHomeIntent()
++             /*Start by chenjinchi topwise 2015-09-09 for disable press home key to homeshell*/
++            if (!android.os.TopwiseProp.getDefaultSettingBoolean("disable_press_home_key_to_homeshell", false)){
++                if ( 0 != Settings.Global.getInt( mContext.getContentResolver(), Settings.Global.DEVICE_PROVISIONED, 0) ) {
++                    intent.setPackage("com.aliyun.homeshell");
++                }
+             }
++            /*End by chenjinchi topwise 2015-09-09 for disable press home key to homeshell*/
+             /*YUNOS END*/
+         }
+         return intent;
+Index: customize/res/base/system/oem/default_settings.xml
+===================================================================
+--- customize/res/base/system/oem/default_settings.xml	(revision 8797)
++++ customize/res/base/system/oem/default_settings.xml	(revision 8798)
+@@ -36,3 +36,6 @@
+ #配置取消按home键始终进阿里桌面
+ disable_press_home_key_to_homeshell=true
+ 
++#配置取消按home键始终进阿里桌面
++disable_press_home_key_to_homeshell=true
++
